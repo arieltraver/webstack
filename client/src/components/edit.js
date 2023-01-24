@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams} from "react-router";
+import { redirect, useNavigate } from "react-router-dom"
  
 export default function Edit() {
  const [form, setForm] = useState({
@@ -25,7 +26,7 @@ export default function Edit() {
      const record = await response.json();
      if (!record) {
        window.alert(`Record with id ${id} not found`);
-       navigate("/");
+       redirect("/");
        return;
      }
  
