@@ -23,7 +23,39 @@ recordRoutes.route("/record").get(function (req, res) {
      res.json(result);
    });
 });
- 
+
+recordRoutes.route("/search/:searchterm").get(function (req, response) {
+  let db_connect = dbo.getDb();
+  let _searchTerm = ObjectId(req.params.searchterm);
+  let search = [
+    {
+      '$search': {
+        'index': 'default', 
+        'autocomplete': {
+          'query': _searchTerm, 
+          'path': 'name'
+        }
+      }
+    }, {
+      '$limit': 10
+    }, {
+      '$project': {
+        'name': 1, 
+        'year': 1, 
+        'category': 1
+      }
+    }
+  ]
+  db_connect
+   .collection("students")
+   .aggregate(search, function (err, res) {
+    if (err) throw err;
+    console.log("search success");
+    response.json(res);
+  });
+})
+
+
 // This section will help you get a single record by id
 recordRoutes.route("/record/:id").get(function (req, res) {
  let db_connect = dbo.getDb();
