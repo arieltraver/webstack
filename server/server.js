@@ -1,7 +1,7 @@
 //https://www.mongodb.com/languages/mern-stack-tutorial
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcyrpt");
+const bcrypt = require("bcrypt");
 const cors = require("cors");
 const bodyParser = require("body-parser")
 require("dotenv").config({ path: "./config.env" });
