@@ -1,8 +1,7 @@
-import useHistory from "react-router"
+import {redirect} from "react-router-dom"
 import useEffect from "react"
 
-function Register() {
-    const history = useHistory()
+export default function Register() {
     
     async function handleRegister(e) {
         e.preventDefault()
@@ -27,7 +26,7 @@ function Register() {
             }
         })
         .then(res => res.json())
-        .then(data => data.isLoggedIn ? history.push("/dashboard"): null)
+        .then(data => data.isLoggedIn ? redirect("/dashboard"): null)
     }, [])
 
     return (

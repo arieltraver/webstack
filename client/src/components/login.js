@@ -1,8 +1,7 @@
-import useHistory from "react-router"
+import { redirect } from "react-router-dom"
 import useEffect from "react"
 
-function Login() {
-    const history = useHistory()
+export default function Login() {
     
     function handleLogin(e) {
         e.preventDefault()
@@ -31,7 +30,7 @@ function Login() {
             }
         })
         .then(res => res.json())
-        .then(data => data.isLoggedIn ? history.push("/dashboard"): null)
+        .then(data => data.isLoggedIn ? redirect("/dashboard"): null)
     }, [])
 
     return (
