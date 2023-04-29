@@ -10,50 +10,54 @@ const dbo = require("../db/conn");
  
 // This help convert the id from string to ObjectId for the _id.
 const ObjectId = require("mongodb").ObjectId;
- 
- 
-// This section will help you get a list of all the records.
-recordRoutes.route("/record").get(function (req, res) {
- let db_connect = dbo.getDb("webstack");
- db_connect
-   .collection("students")
-   .find({})
-   .toArray(function (err, result) {
-     if (err) throw err;
-     res.json(result);
-   });
-});
 
-recordRoutes.route("/search/:searchterm").get(function (req, response) {
-  let db_connect = dbo.getDb();
-  let _searchTerm = ObjectId(req.params.searchterm);
-  let search = [
-    {
-      '$search': {
-        'index': 'default', 
-        'autocomplete': {
-          'query': _searchTerm, 
-          'path': 'name'
+async function lookup(searchterm, db_connect) {
+  students = await db_connect.collection("students").aggregate(
+    [
+      {
+        '$search': {
+          'index': 'default', 
+          'autocomplete': {
+            'query': searchterm, 
+            'path': 'name'
+          }
+        }
+      }, {
+        '$limit': 10
+      }, {
+        '$project': {
+          'name': 1,
+          'year': 1, 
+          'category': 1
         }
       }
-    }, {
-      '$limit': 10
-    }, {
-      '$project': {
-        'name': 1, 
-        'year': 1, 
-        'category': 1
-      }
-    }
-  ]
-  db_connect
-   .collection("students")
-   .aggregate(search, function (err, res) {
-    if (err) throw err;
-    console.log("search success");
-    response.json(res);
-  });
-})
+    ]
+  );
+  return students
+}
+ 
+// This section will help you get a list of all the records.
+recordRoutes.route("/record").get(async function (req, res) {
+  let db_connect = dbo.getDb("webstack");
+  let searchterm = req.query
+  let students;
+  if (searchterm) {
+    console.log("searchterm is" + searchterm)
+    console.log("search term present")
+    students = lookup(searchterm, db_connect)
+    return res.status(200).json({
+      statusCode: 200,
+      message: 'Fetched posts',
+      data: { students },
+    });
+  } else {
+    console.log("no search term")
+    db_connect.collection("students").find({}).toArray(function (err, result) {
+      if (err) throw err;
+      res.json(result);
+    });
+  }
+});
 
 
 // This section will help you get a single record by id

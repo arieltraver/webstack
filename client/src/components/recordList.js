@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Form from 'react-bootstrap/Form';
+import FormControl from 'react-bootstrap/FormControl';
+
  
 const Record = (props) => (
  <tr>
@@ -43,32 +46,53 @@ export default function RecordList() {
  }, [records.length]);
  
  // This method will delete a record
- async function deleteRecord(id) {
-   await fetch(`http://localhost:5000/${id}`, {
-     method: "DELETE"
-   });
+  async function deleteRecord(id) {
+    await fetch(`http://localhost:5000/${id}`, {
+      method: "DELETE"
+    });
  
-   const newRecords = records.filter((el) => el._id !== id);
-   setRecords(newRecords);
- }
+    const newRecords = records.filter((el) => el._id !== id);
+    setRecords(newRecords);
+  }
  
  // This method will map out the records on the table
- function recordList() {
-   return records.map((record) => {
-     return (
-       <Record
-         record={record}
-         deleteRecord={() => deleteRecord(record._id)}
-         key={record._id}
-       />
-     );
-   });
- }
+  function recordList() {
+    return records.map((record) => {
+      return (
+      <Record
+      record={record}
+      deleteRecord={() => deleteRecord(record._id)}
+      key={record._id}
+      />
+      );
+    });
+  }
+
+ //this section acquires the search results and changes the records to that
+ const search = async (e) => {
+  console.log("here 1")
+  const searchterm = e.target.value; //the search term in the bar
+  const response = await fetch(`http://localhost:5000/record?search=${searchterm}`);
+  const newRecords = await response.json();
+  console.log("here 2")
+  setRecords(newRecords);  //re-render
+  };
  
  // This following section will display the table with the records of individuals.
  return (
-   <div>
-     <h3>Record List</h3>
+ <div>
+  <h3>Record List</h3>
+  <div>
+    <Form>
+      <FormControl
+      type="search"
+      placeholder="Search"
+      className="me-5"
+      aria-label="Search"
+      onChange={search} // onChange will trigger "search post"
+      />
+    </Form>
+    </div>
      <table className="table table-striped" style={{ marginTop: 20 }}>
        <thead>
          <tr>
