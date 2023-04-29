@@ -72,7 +72,8 @@ export default function RecordList() {
  const search = async (e) => {
   console.log("here 1")
   const searchterm = e.target.value; //the search term in the bar
-  const response = await fetch(`http://localhost:5000/record?search=${searchterm}`);
+  const { response } = await fetch(`http://localhost:5000/record?searchterm=${searchterm}`,
+  {method: "POST"});
   const newRecords = await response.json();
   console.log("here 2")
   setRecords(newRecords);  //re-render
