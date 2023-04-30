@@ -84,6 +84,7 @@ export default function RecordList() {
     if (!term || term === "") {
       justSearched(false)
     } else {
+      console.log("sending key", key)
       const jason = {
         searchterm: term,
         key: key,

@@ -14,14 +14,14 @@ const ObjectId = require("mongodb").ObjectId;
 recordRoutes.route("/search").post(async function(req, res) {
   const searchterm = req.body.searchterm
   const key = req.body.key
-  let db_connect = dbo.getDb();
+  let db_connect = dbo.getDb("webstack");
   console.log("searchterm is " + searchterm + ", key is " + key)
   let rez;
   rez = await db_connect.collection("students").aggregate(
     [
       {
         '$search': {
-          'index': 'default', 
+          'index': key,
           'autocomplete': {
             'query': searchterm, 
             'path': key
