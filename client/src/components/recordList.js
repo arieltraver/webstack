@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Form from 'react-bootstrap/Form';
 import FormControl from 'react-bootstrap/FormControl';
-
+import Dropdown from 'react-bootstrap/Dropdown';
  
 const Record = (props) => (
  <tr>
@@ -25,28 +25,33 @@ const Record = (props) => (
 export default function RecordList() {
  const [records, setRecords] = useState([]);
  const [searched, justSearched] = useState(false)
- 
+ const [key, setKey] = useState("name")
+
  // This method fetches the records from the database.
  useEffect(() => {
-   async function getRecords() {
-    if (!searched) {
-     const response = await fetch(`http://localhost:5000/record/`);
+  async function getRecords() {
+    const response = await fetch(`http://localhost:5000/record/`);
  
-     if (!response.ok) {
+    if (!response.ok) {
        const message = `An error occurred: ${response.statusText}`;
        window.alert(message);
        return;
-     }
+    }
  
-     const records = await response.json();
-     setRecords(records);
-   }
+    const records = await response.json();
+    setRecords(records);
   }
- 
-   getRecords();
-   return;
 
+  if (!searched) {
+   getRecords();
+  }
+  return;
  }, [records.length]);
+
+
+  useEffect(() => {
+    console.log("key is now", key);
+  }, [key]);
  
  // This method will delete a record
   async function deleteRecord(id) {
@@ -73,27 +78,28 @@ export default function RecordList() {
   }
 
  //this section acquires the search results and changes the records to that
- const search = async (e) => {
-  console.log("here 1")
-  const term = e.target.value; //the search term in the bar
-  if (!term || term == "") {
-    justSearched(false)
-  } else {
-    const jason = {
-      searchterm: term,
+  const search = async (e) => {
+    console.log("here 1")
+    const term = e.target.value; //the search term in the bar
+    if (!term || term === "") {
+      justSearched(false)
+    } else {
+      const jason = {
+        searchterm: term,
+        key: key,
+      }
+      const response = await fetch(`http://localhost:5000/search`,
+      {
+        method: "POST",
+        body: JSON.stringify(jason),
+        headers: {'Content-Type': 'application/json'}
+      })
+      console.log("here 2")
+      const students = await response.json()
+      console.log("students is", students)
+      justSearched(true)
+      setRecords(students)
     }
-    const response = await fetch(`http://localhost:5000/search`,
-    {
-      method: "POST",
-      body: JSON.stringify(jason),
-      headers: {'Content-Type': 'application/json'}
-    })
-    console.log("here 2")
-    const students = await response.json()
-    console.log("students is", students)
-    justSearched(true)
-    setRecords(students)
-  }
   };
  
  // This following section will display the table with the records of individuals.
@@ -101,6 +107,17 @@ export default function RecordList() {
  <div>
   <h3>Record List</h3>
   <div>
+  <Dropdown>
+      <Dropdown.Toggle variant="success" id="dropdown-basic">
+        {key}
+      </Dropdown.Toggle>
+
+      <Dropdown.Menu>
+        <Dropdown.Item onClick={() => setKey("name")}>name</Dropdown.Item>
+        <Dropdown.Item onClick={() => setKey("category")}>category</Dropdown.Item>
+        <Dropdown.Item onClick={() => setKey("year")}>year</Dropdown.Item>
+      </Dropdown.Menu>
+    </Dropdown>
     <Form>
       <FormControl
       type="search"

@@ -13,8 +13,9 @@ const ObjectId = require("mongodb").ObjectId;
 
 recordRoutes.route("/search").post(async function(req, res) {
   const searchterm = req.body.searchterm
+  const key = req.body.key
   let db_connect = dbo.getDb();
-  console.log("searchterm is " + searchterm)
+  console.log("searchterm is " + searchterm + ", key is " + key)
   let rez;
   rez = await db_connect.collection("students").aggregate(
     [
@@ -23,7 +24,7 @@ recordRoutes.route("/search").post(async function(req, res) {
           'index': 'default', 
           'autocomplete': {
             'query': searchterm, 
-            'path': 'name'
+            'path': key
           }
         }
       }, {
