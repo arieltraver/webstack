@@ -8,3 +8,4 @@
     * use separate authenticate function
     * useNavigate replaces useHistory
     * [use multiple routes](https://riptutorial.com/express/example/16315/multiple-routes)
+    * [mongodb aggregation](https://www.mongodb.com/docs/drivers/node/current/fundamentals/aggregation/)
