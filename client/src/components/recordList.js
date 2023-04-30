@@ -24,10 +24,12 @@ const Record = (props) => (
  
 export default function RecordList() {
  const [records, setRecords] = useState([]);
+ const [searched, justSearched] = useState(false)
  
  // This method fetches the records from the database.
  useEffect(() => {
    async function getRecords() {
+    if (!searched) {
      const response = await fetch(`http://localhost:5000/record/`);
  
      if (!response.ok) {
@@ -39,10 +41,11 @@ export default function RecordList() {
      const records = await response.json();
      setRecords(records);
    }
+  }
  
    getRecords();
- 
    return;
+
  }, [records.length]);
  
  // This method will delete a record
@@ -52,6 +55,7 @@ export default function RecordList() {
     });
  
     const newRecords = records.filter((el) => el._id !== id);
+    justSearched(false)
     setRecords(newRecords);
   }
  
@@ -71,12 +75,25 @@ export default function RecordList() {
  //this section acquires the search results and changes the records to that
  const search = async (e) => {
   console.log("here 1")
-  const searchterm = e.target.value; //the search term in the bar
-  const { response } = await fetch(`http://localhost:5000/record?searchterm=${searchterm}`,
-  {method: "POST"});
-  const newRecords = await response.json();
-  console.log("here 2")
-  setRecords(newRecords);  //re-render
+  const term = e.target.value; //the search term in the bar
+  if (!term || term == "") {
+    justSearched(false)
+  } else {
+    const jason = {
+      searchterm: term,
+    }
+    const response = await fetch(`http://localhost:5000/search`,
+    {
+      method: "POST",
+      body: JSON.stringify(jason),
+      headers: {'Content-Type': 'application/json'}
+    })
+    console.log("here 2")
+    const students = await response.json()
+    console.log("students is", students)
+    justSearched(true)
+    setRecords(students)
+  }
   };
  
  // This following section will display the table with the records of individuals.

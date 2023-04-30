@@ -11,8 +11,12 @@ const dbo = require("../db/conn");
 // This help convert the id from string to ObjectId for the _id.
 const ObjectId = require("mongodb").ObjectId;
 
-async function lookup(searchterm, db_connect) {
-  students = await db_connect.collection("students").aggregate(
+recordRoutes.route("/search").post(async function(req, res) {
+  const searchterm = req.body.searchterm
+  let db_connect = dbo.getDb();
+  console.log("searchterm is " + searchterm)
+  let rez;
+  rez = await db_connect.collection("students").aggregate(
     [
       {
         '$search': {
@@ -31,32 +35,20 @@ async function lookup(searchterm, db_connect) {
           'category': 1
         }
       }
-    ]
-  );
-  return students
-}
- 
-// This section will help you get a list of all the records.
-recordRoutes.route("/record").get(async function (req, res) {
-  let db_connect = dbo.getDb("webstack");
-  const {searchterm} = req.query
-  let students;
-  if (searchterm) {
-    console.log("searchterm is" + searchterm)
-    console.log("search term present")
-    students = lookup(searchterm, db_connect)
-    return res.status(200).json({
-      statusCode: 200,
-      message: 'Fetched posts',
-      data: { students },
-    });
-  } else {
-    console.log("no search term")
-    db_connect.collection("students").find({}).toArray(function (err, result) {
+    ]);
+    rez.toArray(function (err, result) {
       if (err) throw err;
       res.json(result);
     });
-  }
+  })
+
+// This section will help you get a list of all the records.
+recordRoutes.route("/record").get(function (req, res) {
+  let db_connect = dbo.getDb("webstack");
+  db_connect.collection("students").find({}).toArray(function (err, result) {
+    if (err) throw err;
+    res.json(result);
+  });
 });
 
 
@@ -88,7 +80,7 @@ recordRoutes.route("/record/add").post(function (req, response) {
  
 // This section will help you update a record by id.
 recordRoutes.route("/update/:id").post(function (req, response) {
- let db_connect = dbo.getDb();
+ let db_connect = dbo.getDb("webstack");
  let myquery = { _id: ObjectId(req.params.id) };
  let newvalues = {
    $set: {
